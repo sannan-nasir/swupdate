@@ -490,9 +490,6 @@ void notify_init(void)
 	}
 #endif
 
-	console_ansi_colors = (isatty(fileno(stdout)) && isatty(fileno(stderr)))
-		? true : false;
-
 	if (pid == getpid()) {
 		char buf[60];
 		snprintf(buf, sizeof(buf), "Notify%d", pid);
@@ -519,6 +516,8 @@ void notify_init(void)
 		 * socket. This can changed if more as one instance of swupdate
 		 * is started (name adjusted to avoid adrress is in use)
 		 */
+		console_ansi_colors = (isatty(fileno(stdout)) && isatty(fileno(stderr)))
+			? true : false;
 		addr_init(&notify_server, "NotifyServer");
 		STAILQ_INIT(&clients);
 		register_notifier(console_notifier);
