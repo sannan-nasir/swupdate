@@ -34,6 +34,7 @@ static server_op_res_t do_save_state(char *key, char* value)
 
 server_op_res_t save_state(char *key, update_state_t value)
 {
+	INFO("SAVING value %c for key '%s' in Bootloader's environment.",value,key);
 	char value_str[2] = {value, '\0'};
 	return do_save_state(key, value_str);
 }
@@ -48,6 +49,7 @@ server_op_res_t read_state(char *key, update_state_t *value)
 	char *envval;
 	CHECK_STATE_VAR(key);
 
+	INFO("Getting value for key '%s' in Bootloader's environment.", key);
 	envval = bootloader_env_get(key);
 	if (envval == NULL) {
 		INFO("Key '%s' not found in Bootloader's environment.", key);
@@ -56,6 +58,7 @@ server_op_res_t read_state(char *key, update_state_t *value)
 	}
 	/* TODO It's a bit whacky just to cast this but as we're the only */
 	/*      ones touching the variable, it's maybe OK for a PoC now. */
+	
 	*value = (update_state_t)*envval;
 
 	/* bootloader get env allocates space for the value */
@@ -79,7 +82,7 @@ update_state_t get_state(void) {
 		ERROR("Cannot read stored update state.");
 		return STATE_ERROR;
 	}
-	TRACE("Read state=%c from persistent storage.", state);
+	INFO("Read state=%c from persistent storage.", state);
 
 	if (is_valid_state(state)) {
 		return state;

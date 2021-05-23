@@ -53,6 +53,7 @@ int bootloader_env_set(const char *name, const char *value)
 
 	ret = bootloader_initialize(&ctx);
 	if (!ret) {
+		INFO("Setting %s=%s in bootloader environment", name, value);
 		libuboot_set_env(ctx, name, value);
 		ret = libuboot_env_store(ctx);
 	}
@@ -96,6 +97,7 @@ char *bootloader_env_get(const char *name)
 	if (!ret) {
 		value = libuboot_get_env(ctx, name);
 	}
+	INFO("Got %s=%s in bootloader environment", name, value);
 	libuboot_close(ctx);
 	libuboot_exit(ctx);
 

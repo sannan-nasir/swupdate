@@ -192,12 +192,12 @@ int start_suricatta(const char *cfgfname, int argc, char *argv[])
 	}
 	free(serverargv);
 
-	TRACE("Server initialized, entering suricatta main loop.");
+	INFO("Server initialized, entering suricatta main loop.");
 	while (true) {
 		if (enable) {
 			switch (server.has_pending_action(&action_id)) {
 			case SERVER_UPDATE_AVAILABLE:
-				DEBUG("About to process available update.");
+				INFO("About to process available update.");
 				server.install_update();
 				break;
 			case SERVER_ID_REQUESTED:
@@ -207,7 +207,7 @@ int start_suricatta(const char *cfgfname, int argc, char *argv[])
 				break;
 			case SERVER_OK:
 			default:
-				DEBUG("No pending action to process.");
+				INFO("No pending action to process.");
 				break;
 			}
 		}

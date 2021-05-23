@@ -233,7 +233,7 @@ static const char *json_get_deployment_update_action(json_object *json_reply)
 		    strlen(deployment_update_action.skip)) == 0) {
 		return deployment_update_action.skip;
 	}
-	TRACE("Server delivered unknown 'update' field, skipping..");
+	INFO("Server delivered unknown 'update' field, skipping..");
 	/*
 	 * Hawkbit API has just skip, forced, attempt, this
 	 * does not happen
@@ -588,15 +588,15 @@ static server_op_res_t server_get_deployment_info(channel_t *channel, channel_da
 		if (server_hawkbit.cancel_url)
 			free(server_hawkbit.cancel_url);
 		server_hawkbit.cancel_url = strdup(url_cancel);
-		TRACE("Cancel action available at %s", url_cancel);
+		INFO("Cancel action available at %s", url_cancel);
 	} else if ((url_deployment_base =
 			json_get_data_url(channel_data_device_info.json_reply,
 					  "deploymentBase")) != NULL) {
 		update_status = SERVER_UPDATE_AVAILABLE;
 		channel_data->url = url_deployment_base;
-		TRACE("Update action available at %s", url_deployment_base);
+		INFO("Update action available at %s", url_deployment_base);
 	} else {
-		TRACE("No pending action on server.");
+		INFO("No pending action on server.");
 		result = SERVER_NO_UPDATE_AVAILABLE;
 		goto cleanup;
 	}
@@ -630,7 +630,7 @@ static server_op_res_t server_get_deployment_info(channel_t *channel, channel_da
 			server_hawkbit.stop_id = json_object_get_int(json_data);
 		}
 	}
-	TRACE("Associated Action ID for Update Action is %d", *action_id);
+	INFO("Associated Action ID for Update Action is %d", *action_id);
 	result = update_status == SERVER_OK ? result : update_status;
 
 cleanup:
@@ -723,10 +723,12 @@ server_op_res_t server_has_pending_action(int *action_id)
 	    server_get_deployment_info(server_hawkbit.channel,
 			    		&channel_data, action_id);
 
+	INFO("Server deployment info is %d", result)
 	/*
 	 * Retrieve if "update" changed before freeing object, used later
 	 */
 	if (result == SERVER_UPDATE_AVAILABLE) {
+		INFO("Update state is SERVER_UPDATE_AVAILABLE");
 		update_action = json_get_deployment_update_action(channel_data.json_reply);
 	}
 
@@ -737,7 +739,7 @@ server_op_res_t server_has_pending_action(int *action_id)
 		ERROR("JSON object should be freed but was not.");
 	}
 	if (result == SERVER_UPDATE_CANCELED) {
-		DEBUG("Acknowledging cancelled update.");
+		INFO("Acknowledging cancelled update.");
 		(void)server_send_cancel_reply(server_hawkbit.channel, *action_id);
 		/* Inform the installer that a CANCEL was received */
 		return SERVER_OK;
@@ -748,6 +750,7 @@ server_op_res_t server_has_pending_action(int *action_id)
 	 * a feedback should be sent to Hawkbit
 	 */
 	if (server_hawkbit.update_state == STATE_WAIT) {
+		INFO("Update state is STATE_WAIT.");
 		return SERVER_OK;
 	}
 
@@ -798,7 +801,7 @@ static server_op_res_t handle_feedback(int action_id, server_op_res_t result,
 	case SERVER_ID_REQUESTED:
 	case SERVER_UPDATE_CANCELED:
 	case SERVER_NO_UPDATE_AVAILABLE:
-		TRACE("No active update available, nothing to report to "
+		INFO("No active update available, nothing to report to "
 		      "server.\n");
 		if ((state != STATE_OK) && (state != STATE_NOT_AVAILABLE)) {
 			WARN("Persistent state=%c but no active update on "
@@ -833,7 +836,7 @@ server_op_res_t server_handle_initial_state(update_state_t stateovrrd)
 	update_state_t state = STATE_OK;
 	if (stateovrrd != STATE_NOT_AVAILABLE) {
 		state = stateovrrd;
-		TRACE("Got state=%c from command line.", state);
+		INFO("Got state=%c from command line.", state);
 		if (!is_valid_state(state)) {
 			return SERVER_EINIT;
 		}
@@ -1240,6 +1243,7 @@ server_op_res_t server_install_update(void)
 	channel_data_t channel_data = channel_data_defaults;
 	server_op_res_t result =
 	    server_get_deployment_info(server_hawkbit.channel, &channel_data, &action_id);
+	INFO("Deployment Info returned result %d.\n",result);	
 	switch (result) {
 	case SERVER_UPDATE_CANCELED:
 	case SERVER_UPDATE_AVAILABLE:
@@ -1432,7 +1436,7 @@ cleanup:
 			result = SERVER_EERR;
 		} else {
 			result = msg.type == ACK ? SERVER_OK : SERVER_EERR;
-			DEBUG("%s", msg.data.msg);
+			INFO("%s", msg.data.msg);
 		}
 	}
 	return result;
@@ -1499,7 +1503,7 @@ server_op_res_t server_send_target_data(void)
 
 	}
 
-	TRACE("CONFIGDATA=%s", configData);
+	INFO("CONFIGDATA=%s", configData);
 
 	static const char* const json_hawkbit_config_data = STRINGIFY(
 	{
@@ -1904,7 +1908,7 @@ static server_op_res_t server_activation_ipc(ipc_message *msg)
 	}
 
 	if (action_id != server_action_id) {
-		TRACE("Deployment changed on server: our id %d, on server %d",
+		INFO("Deployment changed on server: our id %d, on server %d",
 			action_id, server_action_id);
 	} else {
 		response = handle_feedback(action_id, result, update_state, reply_result,
