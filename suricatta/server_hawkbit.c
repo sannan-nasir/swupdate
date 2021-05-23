@@ -723,7 +723,7 @@ server_op_res_t server_has_pending_action(int *action_id)
 	    server_get_deployment_info(server_hawkbit.channel,
 			    		&channel_data, action_id);
 
-	INFO("Server deployment info is %d", result)
+	INFO("Server deployment info is %d", result);
 	/*
 	 * Retrieve if "update" changed before freeing object, used later
 	 */
