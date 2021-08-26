@@ -259,16 +259,20 @@ void *network_thread (void *data)
 		if (msg.magic == IPC_MAGIC)  {
 			switch (msg.type) {
 			case POST_UPDATE:
+				TRACE("[custom] post update command execution........");
 				if (postupdate(get_swupdate_cfg(),
 							   msg.data.instmsg.len > 0 ? msg.data.instmsg.buf : NULL) == 0) {
 					msg.type = ACK;
+					TRACE("[custom] post update command success.");
 					sprintf(msg.data.msg, "Post-update actions successfully executed.");
 				} else {
 					msg.type = NACK;
+					TRACE("[custom] post update command failed.");
 					sprintf(msg.data.msg, "Post-update actions failed.");
 				}
 				break;
 			case SWUPDATE_SUBPROCESS:
+				TRACE("[custom] swupdate subprocess");
 				/*
 				 *  this request is not for the installer,
 				 *  but for one of the subprocesses
