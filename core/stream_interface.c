@@ -486,6 +486,7 @@ void *network_initializer(void *data)
 	inst.status = IDLE;
 
 	/* fork off the local dialogs and network service */
+	TRACE("[custom] starting network thread...");
 	network_thread_id = start_thread(network_thread, &inst);
 
 	/* handle installation requests (from either source) */
@@ -564,11 +565,13 @@ void *network_initializer(void *data)
 				inst.last_install = FAILURE;
 
 			} else {
+				TRACE("[custom] check transaction marker.");
 				/*
 				 * Clear the recovery variable to indicate to bootloader
 				 * that it is not required to start recovery again
 				 */
 				if (software->bootloader_transaction_marker) {
+					TRACE("[custom] reset bl transaction marker.");
 					reset_state((char*)BOOTVAR_TRANSACTION);
 				}
 				notify(SUCCESS, RECOVERY_NO_ERROR, INFOLEVEL, "SWUPDATE successful !");
@@ -579,9 +582,11 @@ void *network_initializer(void *data)
 			notify(FAILURE, RECOVERY_ERROR, ERRORLEVEL, "Image invalid or corrupted. Not installing ...");
 		}
 
+		TRACE("[custom] swupdate progress end.");
 		swupdate_progress_end(inst.last_install);
 
 		pthread_mutex_lock(&stream_mutex);
+		TRACE("[custom] set state as idle.");
 		inst.status = IDLE;
 		pthread_mutex_unlock(&stream_mutex);
 		TRACE("Main thread sleep again !");
@@ -589,8 +594,10 @@ void *network_initializer(void *data)
 
 		/* release temp files we may have created */
 		cleanup_files(software);
+		TRACE("[custom] cleanup complete.");
 	}
 
+	TRACE("[custom] exiting network initializer.");
 	pthread_exit((void *)0);
 }
 

@@ -219,6 +219,7 @@ void *network_thread (void *data)
 		return (void *)0;
 	}
 
+	TRACE("[custom] network thread start.");
 	SIMPLEQ_INIT(&notifymsgs);
 	register_notifier(network_notifier);
 
@@ -251,9 +252,9 @@ void *network_thread (void *data)
 			close(ctrlconnfd);
 			continue;
 		}
-#ifdef DEBUG_IPC
+
 		TRACE("request header: magic[0x%08X] type[0x%08X]", msg.magic, msg.type);
-#endif
+
 
 		pthread_mutex_lock(&stream_mutex);
 		if (msg.magic == IPC_MAGIC)  {
@@ -380,6 +381,7 @@ void *network_thread (void *data)
 				}
 				break;
 			case GET_STATUS:
+				TRACE("[custom] get status");
 				msg.type = GET_STATUS;
 				memset(msg.data.msg, 0, sizeof(msg.data.msg));
 				msg.data.status.current = instp->status;
@@ -394,9 +396,9 @@ void *network_thread (void *data)
 					nrmsgs--;
 					strncpy(msg.data.status.desc, notification->msg,
 						sizeof(msg.data.status.desc) - 1);
-#ifdef DEBUG_IPC
+
 					printf("GET STATUS: %s\n", msg.data.status.desc);
-#endif
+
 					msg.data.status.current = notification->status;
 					msg.data.status.error = notification->error;
 				}
@@ -424,5 +426,6 @@ void *network_thread (void *data)
 			close(ctrlconnfd);
 		pthread_mutex_unlock(&stream_mutex);
 	} while (1);
+	
 	return (void *)0;
 }

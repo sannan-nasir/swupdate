@@ -482,8 +482,8 @@ int postupdate(struct swupdate_cfg *swcfg, const char *info)
 
 	if (swcfg) {
 		DEBUG("Running Post-update command");
+		TRACE("[custom] post-update command is <%s>", swcfg->globals.postupdatecmd)
 		return run_system_cmd(swcfg->globals.postupdatecmd);
 	}
-
 	return 0;
 }

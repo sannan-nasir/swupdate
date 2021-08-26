@@ -935,6 +935,7 @@ int main(int argc, char **argv)
 		/* Start embedded web server */
 #if defined(CONFIG_MONGOOSE)
 		if (opt_w) {
+			TRACE("[custom] starting webserver subprocess");
 			start_subprocess(SOURCE_WEBSERVER, "webserver",
 						cfgfname, ac, av,
 						start_mongoose);
@@ -944,6 +945,7 @@ int main(int argc, char **argv)
 
 #if defined(CONFIG_SURICATTA)
 		if (opt_u) {
+			TRACE("[custom] starting suricatta subprocess");
 			start_subprocess(SOURCE_SURICATTA, "suricatta",
 					 cfgfname, argcount,
 				       	 argvalues, start_suricatta);
@@ -954,6 +956,7 @@ int main(int argc, char **argv)
 
 #ifdef CONFIG_DOWNLOAD
 		if (opt_d) {
+			TRACE("[custom] starting downloader subprocess");
 			start_subprocess(SOURCE_DOWNLOADER, "download",
 				       	 cfgfname, dwlac,
 				       	 dwlav, start_download);
@@ -1025,13 +1028,14 @@ int main(int argc, char **argv)
 	 *  SWUpdate will exit after the check
 	 */
 	if (!opt_c) {
+		TRACE("[custom] starting network initializer thread.");
 		network_daemon = start_thread(network_initializer, &swcfg);
 
 		start_thread(progress_bar_thread, NULL);
 	}
 
 	if (opt_i) {
-
+		TRACE("[custom] installing from file");
 		result = install_from_file(fname, opt_c);
 		switch (result) {
 		case EXIT_FAILURE:
@@ -1060,6 +1064,7 @@ int main(int argc, char **argv)
 	 * the network_daemon thread to allow atexit()
 	 * registered functions to run.
 	 */
+	TRACE("[custom] installing SIGTERM handler.");
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigterm_handler;
 	sigaction(SIGTERM, &sa, NULL);
@@ -1068,6 +1073,7 @@ int main(int argc, char **argv)
 	 * Go into supervisor loop
 	 */
 	if (!opt_c && !opt_i)
+		TRACE("[custom] waiting for network daemon....");
 		pthread_join(network_daemon, NULL);
 
 	return result;
