@@ -253,7 +253,7 @@ void *network_thread (void *data)
 			continue;
 		}
 
-		TRACE("request header: magic[0x%08X] type[0x%08X]", msg.magic, msg.type);
+		//TRACE("request header: magic[0x%08X] type[0x%08X]", msg.magic, msg.type);
 
 
 		pthread_mutex_lock(&stream_mutex);
